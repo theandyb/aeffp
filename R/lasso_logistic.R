@@ -63,7 +63,7 @@ b_update <- function(X, y, u, z, rho, maxiter=50, toler=1e-5, b = 0.5, alpha = 0
   I <- diag(1,n+1)
   C <- cbind(-y, -X)
   
-  f <- function(w) {sum(log(1 + exp(C %*% w))) + (rho/2) * sum((x - z + u)^2)}
+  f <- function(w) {sum(log(1 + exp(C %*% w))) + (rho/2) * sum((w - z + u)^2)}
   
   for(i in 1:maxiter){
     fx <- f(x)

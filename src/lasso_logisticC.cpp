@@ -2,6 +2,7 @@
 
 arma::vec predC(arma::mat X, arma::vec w);
 arma::colvec softT(arma::colvec a, double kappa);
+double obj1(arma::mat C, arma::colvec w, double rho, arma::colvec z, arma::colvec u);
 
 //' Compute loglikelihood for a logistic regression model
 //' 
@@ -50,6 +51,11 @@ arma::vec predC(arma::mat X, arma::vec w){
   return 1 / (1 + exp(-(X * w)));
 }
 
+// [[Rcpp::export]]
+double obj1(arma::mat C, arma::colvec w, double rho, arma::colvec z, arma::colvec u){
+  return(sum( arma::log(1 + arma::exp(C * w)) ) + (rho / 2) * sum(arma::pow((w - z + u),2) ));
+}
+
 //' Update beta estimates using Newton-Raphson algorithm
 //' 
 //' The beta-update step requires optimizing a convex function. This version of the update function
@@ -73,11 +79,11 @@ arma::colvec b_updateC(arma::mat X, arma::colvec y, arma::colvec u, arma::colvec
   arma::mat H;
   
   arma::colvec x = arma::vec(m+1, arma::fill::zeros);
-  arma::mat I = arma::mat(n+1, n+1, arma::fill::eye); //diag(1,n+1)
+  arma::mat I = arma::mat(m+1, m+1, arma::fill::eye);
   arma::mat C = arma::join_rows(-y, -X);
   
   for(int i = 0;  i < maxiter; ++i){
-    fx = obj1(C, x, z, u, rho);
+    fx = obj1(C, x, rho, z, u);
 
     g = C.t() * (arma::exp(C * x) / (1 + arma::exp(C * x))) + rho * (x - z + u);
 
@@ -88,7 +94,7 @@ arma::colvec b_updateC(arma::mat X, arma::colvec y, arma::colvec u, arma::colvec
     if(abs(dfx) < toler) {break;};
 
     t = 1;
-    while (obj1(C, x + t*dx, z, u, rho) > fx + alpha*t*dfx){
+    while (obj1(C, x + t*dx, rho, z, u) > fx + alpha*t*dfx){
       t = b * t;
     }
     x += t * dx;
