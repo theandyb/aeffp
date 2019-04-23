@@ -24,7 +24,7 @@ for(j in 1:7) X[,j] = (X[,j]-mean(X[,j]))/sd(X[,j])
 X = as.matrix(X)
 y <- ifelse(y==1, 1, -1)
 
-sourceCpp("aeffp/src/test.cpp")
+sourceCpp("aeffp/src/lasso_logisticC.cpp")
 
 # PennegLogLik = function(bbeta,lambda=0){
 #   b0=bbeta[1]

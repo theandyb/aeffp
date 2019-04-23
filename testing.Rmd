@@ -1,0 +1,59 @@
+---
+title: "Testing"
+author: "Andy Beck"
+date: "4/22/2019"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	include = TRUE
+)
+library(Rcpp)
+suppressMessages(library(tidyverse))
+suppressMessages(library(R.matlab))
+```
+
+## AEFFP Testing
+
+The purpose of this document is to verify my ADMM implementation matches that of Stephen Boyd [https://stanford.edu/~boyd/papers/admm/logreg-l1/logreg.html](https://stanford.edu/~boyd/papers/admm/logreg-l1/logreg.html)
+
+## Validating agaist matlab implementation
+
+### Generate Data
+
+* p = 10, 5 non-zero
+* X = 200-by-10 matrix of predictors
+* y = 200 observations
+
+```{r}
+n <- 200
+p <- 5
+set.seed(815)
+beta <- c(rnorm(floor(p/2)), rep(0,ceiling(p/2)))
+b0 <- rnorm(1) # random intercept
+X <- matrix(rnorm(n*p), nrow = n, ncol = p)
+pr <- 1/(1+exp(-X %*% beta + b0))
+y = rbinom(n,1,pr)
+y <- ifelse(y==1,1,-1)
+
+qplot(as.numeric(y==1), geom = "histogram")
+```
+
+Now save the data in format matlab can read:
+
+```{r}
+writeMat("input.mat", X=X, y=y)
+```
+
+### Run with my implementation
+
+Note: Boyd's implementation uses $m \times \mu$ in place of $\lambda$ for some reason, where m is the number of observations.
+
+```{r}
+sourceCpp("src/lasso_logisticC.cpp")
+admmlasso_logC(X,y,0.0057 * 200, 1)
+```
+

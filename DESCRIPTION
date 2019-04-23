@@ -1,11 +1,13 @@
 Package: aeffp
 Type: Package
-Title: What the package does (short line)
+Title: Lasso-penalized Logistic Regression via ADMM
 Version: 1.0
-Date: 2019-04-10
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Date: 2019-04-23
+Author: Andy Beck
+Maintainer: Andy Beck <beckandy@umich.edu>
+Description: This is an Rcpp implementation of the lasso-penalized logistic regression fit via the ADMM algorithm. This is inspired by Stephen Boyd's matlab implementation (http://web.stanford.edu/~boyd/papers/admm/logreg-l1/logreg.html)
+License: GPL-3
 Imports: Rcpp (>= 1.0.1)
 LinkingTo: Rcpp, RcppArmadillo
+Encoding: UTF-8
+RoxygenNote: 6.1.1

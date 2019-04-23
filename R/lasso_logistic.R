@@ -5,9 +5,10 @@
 #' 
 #' @param X Covariate matrix (no column for intercept)
 #' @param y Vector of observations (coded in -1/1)
-#' @param u Current value of u vector (ADMM optimization)
-#' @param z Current value of z vector (ADMM optimization)
+#' @param lam Tuning parameter for lasso penalty
 #' @param rho Tuning parameter for ADMM optimization
+#' @param maxit Maximum number of iterations
+#' @param tol Convergence criterion
 #' @return Vector containing updated estimate of beta vector
 #' @export
 admmlasso_log=function(X, y, lam, rho=1e-3, maxit=1000, tol=1e-3){
@@ -31,12 +32,12 @@ admmlasso_log=function(X, y, lam, rho=1e-3, maxit=1000, tol=1e-3){
     
     zold <- z
     z <- betas+w
-    z[2:length(z)] <- shrinkage(z[2:length(z)], n*lam/rho)
+    z[2:length(z)] <- shrinkage(z[2:length(z)], lam/rho)
     w <- w + (betas - z)
     
     # Convergence check
     old_objVal <- objVal
-    objVal <- sum(log(1+exp(-y*X%*%beta - y*b0)))+n*lam*sum(abs(z))
+    objVal <- sum(log(1+exp(-y*X%*%beta - y*b0)))+lam*sum(abs(z[2:length(z)]))
     if(abs(objVal-old_objVal) < tol){break}
     
   }
@@ -53,6 +54,10 @@ admmlasso_log=function(X, y, lam, rho=1e-3, maxit=1000, tol=1e-3){
 #' @param u Current value of u vector (ADMM optimization)
 #' @param z Current value of z vector (ADMM optimization)
 #' @param rho Tuning parameter for ADMM optimization
+#' @param maxiter Maximum number of iterations
+#' @param toler Convergence criterion
+#' @param b Backtracking tuning parameter
+#' @param alpha Backtracking tuning parameter
 #' @return Vector containing updated estimate of beta vector
 b_update <- function(X, y, u, z, rho, maxiter=50, toler=1e-5, b = 0.5, alpha = 0.1){
   m <- nrow(X)
@@ -113,6 +118,6 @@ b_update2 <- function(X, y, u, z, rho){
 #' @param z z vector from ADMM problem
 #' @param kappa value to be (soft-thresholdedly) subtracted from each element of z
 #' @return result of soft thresholding operation
-shrinkage <- function(a, kappa){
-  pmax(0, a-kappa) - pmax(0, -a-kappa);
+shrinkage <- function(z, kappa){
+  pmax(0, z-kappa) - pmax(0, -z-kappa);
 }
