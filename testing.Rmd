@@ -53,7 +53,8 @@ writeMat("input.mat", X=X, y=y)
 Note: Boyd's implementation uses $m \times \mu$ in place of $\lambda$ for some reason, where m is the number of observations.
 
 ```{r}
-sourceCpp("src/lasso_logisticC.cpp")
+#sourceCpp("src/lasso_logisticC.cpp")
+library(aeffp)
 admmlasso_logC(X,y,0.0057 * 200, 1)
 ```
 
