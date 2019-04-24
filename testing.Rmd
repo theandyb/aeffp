@@ -14,6 +14,8 @@ knitr::opts_chunk$set(
 library(Rcpp)
 suppressMessages(library(tidyverse))
 suppressMessages(library(R.matlab))
+suppressMessages(library(glmnet))
+library(rbenchmark)
 ```
 
 ## AEFFP Testing
@@ -55,6 +57,37 @@ Note: Boyd's implementation uses $m \times \mu$ in place of $\lambda$ for some r
 ```{r}
 #sourceCpp("src/lasso_logisticC.cpp")
 library(aeffp)
-admmlasso_logC(X,y,0.0057 * 200, 1)
+admmlasso_logC(X,y, 3, 0.2)
+```
+
+## Runtime Comparison: aeffp versus glmnet
+
+### Simulate a dataset
+
+```{r}
+n <- 200
+p <- 50
+set.seed(815)
+beta <- c(rnorm(10), rep(0,40))
+b0 <- rnorm(1) # random intercept
+X <- matrix(rnorm(n*p), nrow = n, ncol = p)
+pr <- 1/(1+exp(-X %*% beta + b0))
+y = rbinom(n,1,pr)
+y <- ifelse(y==1,1,-1)
+
+qplot(as.numeric(y==1), geom = "histogram")
+```
+
+#### How long does it take to run glmnet?
+
+```{r}
+benchmark("aeffp" = {
+  mod1 <- admmlasso_logC(X,y,1)
+  },
+  "glmnet" = {
+    glmnet(X, y, family = "binomial", alpha = 1)
+  },
+  replications = 10
+)
 ```
 

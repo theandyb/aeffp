@@ -2,7 +2,35 @@
 
 Andy's 815 Final Project: Using lasso-penalized logistic regression to explore the influence of local nucleotide sequence context on mutation rate heterogeneity.
 
-## Preparing Data
+## Installation
+
+```r
+devtools::install_github("theandyb/aeffp")
+```
+
+## Basic Usage
+
+My method assumes that the response variable has been coded in a -1/+1 scheme. Given a matrix of predictor variables X and a corresponding vector of observations y, you could run 
+
+```r
+admmlasso_logC(X, y, lambda)
+```
+
+where lambda is the tuning parameter for the lasso penalty. There is also a raw R implementation avaialable (`admmlasso_log`), though this was something I used to prototype this and I would not suggest you use this.
+
+If your data is grouped (i.e. you have a count of hits and misses), you could use the function `admmlasso_logC_tabled`, where instead of a vector of observations you provide a matrix with two columns, the first containing the "hits" (successes) and the second containing the count of "misses" (failures).
+
+## Examples
+
+### testing.Rmd
+Simulation experiments. Verified that my implementation produces the same output as Stephen Boyd's [matlab implementation](https://stanford.edu/~boyd/papers/admm/logreg-l1/logreg.html) and that my method is a bit slower than glmnet.
+
+### real_data_application.ipyn
+Example of using glmnet to fit penalized logistic regression model using motifs as predictors.
+
+## Application: local nucleotide context and mutation rate heterogeneity
+
+### Preparing Data
 
 1. Assuming variant calls are available in a vcf/bcf file, run a command similar to this to extract information about the singletons (note: not all the fields here need to be extracte, but following steps might assume these fields are present in the output)
 
@@ -30,3 +58,6 @@ python motif_count.py -i /refGenome.fasta -m motifs5.txt -o output/path
 ```
 
 You also need to match each motif with its reverse-complement and sum the two together.
+
+### Example Analysis
+A very simplified analysis can be found in the jupyter notebook titled 

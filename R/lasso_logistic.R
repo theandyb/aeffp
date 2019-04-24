@@ -1,3 +1,8 @@
+#' @useDynLib aeffp
+#' @exportPattern "^[[:alpha:]]+"
+#' @importFrom Rcpp sourceCpp
+NULL
+
 #' Fit l1-penalized logistic regression model using ADMM
 #' 
 #' Use an ADMM approach to find the parameters for a l1-penalized logistic regression model.
@@ -10,7 +15,6 @@
 #' @param maxit Maximum number of iterations
 #' @param tol Convergence criterion
 #' @return Vector containing updated estimate of beta vector
-#' @useDynLib aeffp
 #' @export
 admmlasso_log=function(X, y, lam, rho=1e-3, maxit=1000, tol=1e-3){
   n <- nrow(X)
